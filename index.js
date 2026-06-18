@@ -1,12 +1,15 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const Groq = require("groq-sdk");
+const imageRoutes = require("./routes/imageRoutes");
+const resumeRoutes = require("./routes/resumeRoutes");
+const interviewRoutes = require("./routes/interviewRoutes");
 
 const connectDB = require("./config/db");
 const Creation = require("./models/Creation");
-
-dotenv.config();
+console.log("HF_TOKEN starts with:", process.env.HF_TOKEN?.slice(0,10));
 
 const app = express();
 
@@ -14,7 +17,9 @@ const app = express();
 connectDB();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "25mb" }));
+app.use("/api/images", imageRoutes);
+app.use("/api/resume", resumeRoutes);
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
