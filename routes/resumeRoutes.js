@@ -1,12 +1,11 @@
 const express = require("express");
 const multer = require("multer");
-const pdfParse = require("pdf-parse");
+const pdf = require("pdf-parse");
 const Groq = require("groq-sdk");
 const Creation = require("../models/Creation");
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
-
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 router.post("/review", upload.single("resume"), async (req, res) => {
@@ -21,7 +20,7 @@ router.post("/review", upload.single("resume"), async (req, res) => {
     let resumeText = "";
 
     if (req.file.mimetype === "application/pdf") {
-      const data = await pdfParse(req.file.buffer);
+      const data = await pdf(req.file.buffer);
       resumeText = data.text;
     } else {
       resumeText = req.file.buffer.toString("utf-8");
@@ -104,16 +103,12 @@ Be specific, reference actual text from the resume, and give actionable feedback
       result: review,
     });
 
-    return res.json({
-      success: true,
-      review,
-    });
+    return res.json({ success: true, review });
 
   } catch (error) {
     console.log("\n========== RESUME REVIEW ERROR ==========");
     console.log("MESSAGE:", error.message);
     console.log("===========================================\n");
-
     return res.status(500).json({
       success: false,
       message: error.message || "Resume review failed",
