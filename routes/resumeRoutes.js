@@ -1,6 +1,6 @@
 const express = require("express");
 const multer = require("multer");
-const { PDFParse } = require("pdf-parse");
+const pdfParse = require("pdf-parse");
 const Groq = require("groq-sdk");
 const Creation = require("../models/Creation");
 
@@ -21,8 +21,7 @@ router.post("/review", upload.single("resume"), async (req, res) => {
     let resumeText = "";
 
     if (req.file.mimetype === "application/pdf") {
-      const parser = new PDFParse({ data: req.file.buffer });
-      const data = await parser.getText();
+      const data = await pdfParse(req.file.buffer);
       resumeText = data.text;
     } else {
       resumeText = req.file.buffer.toString("utf-8");
